@@ -3,7 +3,8 @@ from itertools import chain, izip
 
 
 class CTWNode:
-    # Constructor
+    # Constructor : Instances of this class are single nodes in the CTW tree, with pointers to parent node and child
+    # nodes.
     def __init__(self, parent_index, depth):
         self.LogProbability = 0  # Stores the log probability of the data partition this node has seen so far
         self.OneCount = 0  # Stores the number of 1's of the data partition this node has seen so far
@@ -96,7 +97,8 @@ class CTWNode:
 
 class CTW:
 
-    # Constructor
+    # Constructor : This class implements the context tree weighting algorithm. There are methods to update the model
+    # with strings with or without side information, and get the log probability of the whole model.
     def __init__(self, max_depth):
         self.MaxDepth = max_depth  # The context length that is used (maximum order of markov model)
         self.NodeList = [CTWNode(-1, 0)]  # Stores the trees nodes that have been instantiated
@@ -120,6 +122,7 @@ class CTW:
 
         return pass_value
 
+    # Update the model with a string to model, and a side information string of the same length
     def present_bit_string_and_update_with_side_information(self, bit_string, side_information):
 
         for index in enumerate(bit_string, start=self.MaxDepth):
@@ -133,6 +136,7 @@ class CTW:
             else:
                 self.present_zero_and_update_in_context(cntxt)
 
+    # Update the model with a string to model
     def present_bit_string_and_update(self, bit_string):
         for index in enumerate(bit_string, start=self.MaxDepth):
             if index[0]+1 >= len(bit_string):
@@ -142,6 +146,8 @@ class CTW:
             else:
                 self.present_zero_and_update_in_context(bit_string[index[0]-self.MaxDepth:index[0]])
 
+    # Called if current target bit is a one. 'cntxt' is the bit string context of the target.
+    # Recursively updates / dynamically adds nodes to the tree with this information.
     def present_one_and_update_in_context(self, cntxt):
         temp_cntxt = cntxt[::-1]
         not_done = 1
@@ -167,6 +173,8 @@ class CTW:
                 not_done = 0
             count += 1
 
+    # Called if current target bit is a zero. 'cntxt' is the bit string context of the target.
+    # Recursively updates / dynamically adds nodes to the tree with this information.
     def present_zero_and_update_in_context(self, cntxt):
         temp_cntxt = cntxt[::-1]
         not_done = 1
